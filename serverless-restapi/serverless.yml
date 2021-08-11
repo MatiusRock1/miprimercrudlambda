@@ -1,0 +1,129 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: serverless-restapi
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: ${opt:stage}
+
+  region: us-east-1
+  lambdaHashingVersion: 20201221
+
+  apiGateway:
+    apiKeys:
+      - free:
+          - ${opt:stage}-freekey
+      - paid:
+          - ${opt:stage}-prokey
+    usagePlan:
+      - free:
+          quota:
+            limit: 5000
+            offset: 2
+            period: MONTH
+          throttle:
+            burstLimit: 200
+            rateLimit: 100
+      - paid:
+          quota:
+            limit: 50000
+            offset: 1
+            period: MONTH
+          throttle:
+            burstLimit: 2000
+            rateLimit: 1000
+
+# you can overwrite defaults here
+#  stage: dev
+#  region: us-east-1
+
+# you can add statements to the Lambda function's IAM Role here
+#  iamRoleStatements:
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:ListBucket"
+#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:PutObject"
+#      Resource:
+#        Fn::Join:
+#          - ""
+#          - - "arn:aws:s3:::"
+#            - "Ref" : "ServerlessDeploymentBucket"
+#            - "/*"
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
+
+# you can add packaging information here
+#package:
+#  patterns:
+#    - '!exclude-me.js'
+#    - '!exclude-me-dir/**'
+#    - include-me.js
+#    - include-me-dir/**
+
+functions: 
+  create:
+    handler: handler.create
+    events:
+      - http: 
+          path: notes
+          method: post
+          cors: true
+          private: false
+  getOne:
+    handler: handler.getOne
+    events:
+      - http: 
+          path: notes/{id}
+          method: get
+          cors: true
+          private: false
+  getAll:
+    handler: handler.getAll
+    events:
+      - http: 
+          path: notes
+          method: get
+          cors: true
+          private: false
+  update:
+    handler: handler.update
+    events:
+      - http: 
+          path: notes/{id}
+          method: put
+          cors: true
+          private: false
+  delete:
+    handler: handler.delete
+    events:
+      - http: 
+          path: notes/{id}
+          method: delete
+          cors: true
+          private: false
+plugins:
+- serverless-offline # adding the plugin to be able to run the offline emulation
